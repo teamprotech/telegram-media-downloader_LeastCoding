@@ -3,6 +3,7 @@ from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetAllChatsRequest
 from telethon import errors
 
+
 def initialize(api_id, api_hash):
     try:
         os.mkdir('downloaded_media')
@@ -13,6 +14,15 @@ def initialize(api_id, api_hash):
     return client
 
 def download_media(client, chat_title, skip_until=None):
+    eco_num = 37
+    dm_num = 4
+    whist_num = 20
+    ans_num = 2
+    path = "/datahome2/tele-test/live-zignd/downloaded_media/"
+    old_name = "/datahome2/tele-test/live-zignd/downloaded_media/manifest.mp4"
+    file_flag = False
+    break_msg_looping = False
+    new_exists = True
     chats = client(GetAllChatsRequest(except_ids=[]))
     for _, chat in enumerate(chats.chats):
         if chat.title == chat_title:
@@ -20,7 +30,9 @@ def download_media(client, chat_title, skip_until=None):
             print('attemping to iterate over messages to download media')
             skip_until = skip_until and int(skip_until)
             for message in client.iter_messages(chat, offset_id=skip_until):
-                if message.media:
+                if break_msg_looping:
+                    break
+                elif message.media:
                     while True:
                         print(message.id, message.date, "message has media, downloading")
                         try:
@@ -33,9 +45,58 @@ def download_media(client, chat_title, skip_until=None):
                             print(message.id, message.date, "failed to download media")
                             raise e
                         print(message.id, message.date, "media downloaded, waiting 10 seconds before the next one")
+                        time.sleep(10)
+                        print("Now moving OR renaming file if mainifest OR master-name...")
+                        old_manifest = "/datahome2/tele-test/live-zignd/downloaded_media/manifest.mp4"
+                        old_master = "/datahome2/tele-test/live-zignd/downloaded_media/master.mp4"
+                        if os.path.exists(old_manifest):
+                            file_flag = True
+                            old_name = old_manifest
+                        elif os.path.exists(old_master):
+                            file_flag = True
+                            old_name = old_master
+                        else:
+                            print("None of Pre-defined file exists... Should leave as it is ??")
+                            
+                        if eco_num > 0:
+                            new_name = path + "Economics_Lecture_" + str(eco_num) + ".mp4"
+                            eco_num = eco_num - 1
+                        elif dm_num > 0:
+                            new_name = path + "Disater-Management_Lecture_" + str(dm_num) + ".mp4"
+                            dm_num = dm_num - 1
+                        elif whist_num > 0:
+                            new_name = path + "World-History_Lecture_" + str(whist_num) + ".mp4"
+                            whist_num = whist_num - 1
+                        elif ans_num > 0:
+                            new_name = path + "Answer-Writing_Lecture_" + str(ans_num) + ".mp4"
+                            whist_num = whist_num - 1
+                        else:
+                            print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
+                            break_msg_looping = True
+                            new_exists = False
+                        
+                        if (file_flag and new_exists):
+                            os.rename(old_name, new_name)
+                            print(new_name, ": is the new-Name of corresponding msg-id:", message.id)
+                        elif new_exists:
+                            print(message.id, ":was supposed to be re-Named to: ", new_name)
+                            print("So STOPPING now... Check & Implement to catch FURTHER OLD-Names...")
+                            break_msg_looping = True
+                        else:
+                            print(message.id, old_name, " : was supposed to be re-Named in this Last-Session...")
+                            
+                        print("Saving LAST-Stats to file last-message-id for Fixing NEXT-Run...")
                         with open('last-message-id', 'w') as f:
                             f.write(str(message.id))
-                        time.sleep(10)
+                            f.write(" : Message-id of Last read msg-Chat \n")
+                            f.write(str(eco_num))
+                            f.write(" : Last-eco_num \n")
+                            f.write(str(dm_num))
+                            f.write(" : Last-dm_num \n")
+                            f.write(str(whist_num))
+                            f.write(" : Last-whist_num \n")
+                            f.write(str(ans_num))
+                            f.write(" : Last-ans_num \n")
                         break
                 else:
                     print(message.id, message.date, "message doesn't have media")
@@ -69,5 +130,5 @@ if __name__ == "__main__":
     skip_until = None
     if len(sys.argv) == 9 and sys.argv[7] == "--skip-until" and sys.argv[8]:
         skip_until = sys.argv[8]
-    
+           
     download_media(client, chat_title, skip_until)
