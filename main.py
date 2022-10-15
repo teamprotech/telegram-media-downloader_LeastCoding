@@ -14,10 +14,17 @@ def initialize(api_id, api_hash):
     return client
 
 def download_media(client, chat_title, skip_until=None):
-    eco_num = 37
-    dm_num = 4
-    whist_num = 20
-    ans_num = 2
+    print("Reading the data-stats from File-NOW...")
+    with open('last-message-id') as f:
+        lines = f.read().splitlines()
+        eco_num = int(lines[1].split()[0])
+        dm_num = int(lines[2].split()[0])
+        whist_num = int(lines[3].split()[0])
+        ans_num = int(lines[4].split()[0])
+    print("Below are the Collected-DATA. Cross check with file if NOT-okay break me in 120-seconds!!!")
+    print(eco_num, dm_num, whist_num, ans_num)
+    time.sleep(120)
+    print("Will Continue now, With this data. Watch me!!")
     path = "/datahome2/tele-test/live-zignd/downloaded_media/"
     old_name = "/datahome2/tele-test/live-zignd/downloaded_media/manifest.mp4"
     file_flag = False
