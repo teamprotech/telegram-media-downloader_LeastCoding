@@ -2,6 +2,14 @@ import sys, os, time
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetAllChatsRequest
 from telethon import errors
+from datetime import datetime
+
+def log_withTime(message=None, msg_id=None):
+    timeStamp = datetime.now().strftime("%d-%b %H:%M:%S")
+    if msg_id:
+        print("[ERROR] " + timeStamp + " id: " + str(msg_id) + ' : ' + message)
+    else:
+        print("[INFO] " + timeStamp + ' : ' + message)
 
 
 def initialize(api_id, api_hash):
@@ -14,6 +22,7 @@ def initialize(api_id, api_hash):
     return client
 
 def download_media(client, chat_title, skip_until=None):
+    log_withTime("START-Time Marked here...")
     print("Reading the data-stats from File-NOW...")
     with open('last-message-id') as f:
         lines = f.read().splitlines()
@@ -21,7 +30,7 @@ def download_media(client, chat_title, skip_until=None):
         dm_num = int(lines[2].split()[0])
         whist_num = int(lines[3].split()[0])
         ans_num = int(lines[4].split()[0])
-    print("Below are the Collected-DATA. Cross check with file if NOT-okay break me in 120-seconds!!!")
+    log_withTime("Below are the Collected-DATA. Cross check with file if NOT-okay break me in 120-seconds!!!")
     print(eco_num, dm_num, whist_num, ans_num)
     time.sleep(120)
     print("Will Continue now, With this data. Watch me!!")
@@ -45,15 +54,17 @@ def download_media(client, chat_title, skip_until=None):
                         try:
                             client.download_media(message, file='downloaded_media')
                         except errors.FloodWaitError as e:
+                            log_withTime("Failed to download THIS-Media...", message.id)
                             print(message.id, message.date, "failed to download media: flood wait error, were asked to wait for", e.seconds, " but will be waiting for", e.seconds + 120)
                             time.sleep(e.seconds + 120)
                             continue
                         except Exception as e:
                             print(message.id, message.date, "failed to download media")
+                            log_withTime("Some Un-Handled Exception occured", message.id)
                             raise e
                         print(message.id, message.date, "media downloaded, waiting 10 seconds before the next one")
                         time.sleep(10)
-                        print("Now moving OR renaming file if mainifest OR master-name...")
+                        log_withTime("Now moving OR renaming file if mainifest OR master-name...")
                         old_manifest = "/datahome2/tele-test/live-zignd/downloaded_media/manifest.mp4"
                         old_master = "/datahome2/tele-test/live-zignd/downloaded_media/master.mp4"
                         if os.path.exists(old_manifest):
@@ -92,7 +103,7 @@ def download_media(client, chat_title, skip_until=None):
                         else:
                             print(message.id, old_name, " : was supposed to be re-Named in this Last-Session...")
                             
-                        print("Saving LAST-Stats to file last-message-id for Fixing NEXT-Run...")
+                        print("Saving LAST-Stats to file last-message-id to help in Next-Run...")
                         with open('last-message-id', 'w') as f:
                             f.write(str(message.id))
                             f.write(" : Message-id of Last read msg-Chat \n")
@@ -108,6 +119,7 @@ def download_media(client, chat_title, skip_until=None):
                 else:
                     print(message.id, message.date, "message doesn't have media")
             break
+    log_withTime("END-Time Marked here...")
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "--help":
