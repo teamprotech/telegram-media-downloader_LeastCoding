@@ -3,6 +3,7 @@ from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetAllChatsRequest
 from telethon import errors
 from datetime import datetime
+import glob
 
 def log_withTime(message=None, msg_id=None):
     timeStamp = datetime.now().strftime("%d-%b %H:%M:%S")
@@ -57,6 +58,19 @@ def download_media(client, chat_title, skip_until=None):
                             log_withTime("Failed to download THIS-Media...", message.id)
                             print(message.id, message.date, "failed to download media: flood wait error, were asked to wait for", e.seconds, " but will be waiting for", e.seconds + 120)
                             time.sleep(e.seconds + 120)
+                            continue
+                        except errors.FileReferenceExpiredError as err:
+                            log_withTime("Failed to download This-media: FileReferenceExpiredError has occured...", message.id)
+                            print("Type is: ", type(err))
+                            print("Message is: ", err)
+                            print("Wll be waiting for 180-seconds and THEN re-Try to download again...")
+                            time.sleep(180)
+                            log_withTime("Continuing: Tyring to re-Download it!!")
+                            print("Before that: Clearing orphaned-downloads...")
+                            for file in glob.glob('downloaded_media/master*'):
+                                print("Deleting file: ", file)
+                                os.remove(file)
+                            print("Done with Clearing, Will Re-Downloadload NOW....Watch...")
                             continue
                         except Exception as e:
                             print(message.id, message.date, "failed to download media")
