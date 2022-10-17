@@ -12,6 +12,21 @@ def log_withTime(message=None, msg_id=None):
     else:
         print("[INFO] " + timeStamp + ' : ' + message)
 
+def loop_whole_process():
+    with open('.config/api-details') as f:
+        lines = f.read().splitlines()
+        api_id = lines[0].split()[0]
+        api_hash = lines[1].split()[0]
+        chat_title = lines[2]
+    client = initialize(api_id, api_hash)
+    print("[EXEC] Client Connected Back...")
+    file = open('last-message-id')
+    lines = file.readlines()
+    skip_until = lines[0].split()[0]
+    file.close()
+    print("[INFO] skip_until: As per last-message-id file data SET to: ", skip_until)
+    print("[EXEC] Passing controll to MAIN-download_media finally...")
+    download_media(client, chat_title, skip_until)
 
 def initialize(api_id, api_hash):
     try:
@@ -40,6 +55,7 @@ def download_media(client, chat_title, skip_until=None):
     file_flag = False
     break_msg_looping = False
     new_exists = True
+    re_Do_All = False
     chats = client(GetAllChatsRequest(except_ids=[]))
     for _, chat in enumerate(chats.chats):
         if chat.title == chat_title:
@@ -63,15 +79,18 @@ def download_media(client, chat_title, skip_until=None):
                             log_withTime("Failed to download This-media: FileReferenceExpiredError has occured...", message.id)
                             print("Type is: ", type(err))
                             print("Message is: ", err)
-                            print("Wll be waiting for 180-seconds and THEN re-Try to download again...")
-                            time.sleep(180)
-                            log_withTime("Continuing: Tyring to re-Download it!!")
-                            print("Before that: Clearing orphaned-downloads...")
+                            print("[EXEC] Setting Flags to re-Execute")
+                            re_Do_All = True
+                            break_msg_looping = True
+                            print("[EXEC] Clearing orphaned-downloads...")
                             for file in glob.glob('downloaded_media/master*'):
                                 print("Deleting file: ", file)
                                 os.remove(file)
-                            print("Done with Clearing, Will Re-Downloadload NOW....Watch...")
-                            continue
+                            for file in glob.glob('downloaded_media/manifest*'):
+                                print("Deleting file: ", file)
+                                os.remove(file)
+                            print("Done with Clearing, Will re-Execute NOW....Watch...")
+                            break
                         except Exception as e:
                             print(message.id, message.date, "failed to download media")
                             log_withTime("Some Un-Handled Exception occured", message.id)
@@ -133,7 +152,16 @@ def download_media(client, chat_title, skip_until=None):
                 else:
                     print(message.id, message.date, "message doesn't have media")
             break
-    log_withTime("END-Time Marked here...")
+    if re_Do_All:
+        log_withTime("Flag found to be TRUE for re-Executing self-Fully...")
+        print("[EXEC] Disconnecting Client First to avoid -sqLite-db-lock issues...")
+        client.disconnect()
+        print("[EXEC] Client Disconnected... Now Speeping for 180-Seconds to cool tele-server !!!")
+        time.sleep(180)
+        print("[EXEC] Now Calling the -loop_whole_process- part...")
+        loop_whole_process()
+    else:
+        log_withTime("END-Time Marked here...")
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "--help":
