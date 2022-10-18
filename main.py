@@ -120,7 +120,7 @@ def download_media(client, chat_title, skip_until=None):
                             whist_num = whist_num - 1
                         elif ans_num > 0:
                             new_name = path + "Answer-Writing_Lecture_" + str(ans_num) + ".mp4"
-                            whist_num = whist_num - 1
+                            ans_num = ans_num - 1
                         else:
                             print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
                             break_msg_looping = True
