@@ -49,13 +49,13 @@ def download_media(client, chat_title, skip_until=None):
         modhist_num = int(lines[5].split()[0])
         maps_num = int(lines[6].split()[0])
         geo_num = int(lines[7].split()[0])
-    log_withTime("Below are the Collected-DATA. Cross check with file if NOT-okay break me in 120-seconds!!!")
+    log_withTime("Below are the Collected-DATA. Cross check with file if NOT-okay break me in 60-seconds!!!")
     print(sec_num, ir_num, st_num, bs_num, modhist_num, maps_num, geo_num)
-    time.sleep(120)
+    time.sleep(60)
     print("Will Continue now, With this data. Watch me!!")
     break_msg_looping = False
     re_Do_All = False
-    dir_path = "downloaded_media"
+    dir_path = "downloaded_media/"
     chats = client(GetAllChatsRequest(except_ids=[]))
     for _, chat in enumerate(chats.chats):
         if chat.title == chat_title:
@@ -95,7 +95,7 @@ def download_media(client, chat_title, skip_until=None):
                     geo_num = geo_num -1
                 else:
                     print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
-                    print("[STOPPED] Downloading current media with msg-id: ", message-id)
+                    print("[STOPPED] at current media with msg-id: ", message.id)
                     break
                 new_name = dir_path + lect_Name + "_Lecture_" + str(lect_Num) + ".mp4"
 
@@ -133,6 +133,7 @@ def download_media(client, chat_title, skip_until=None):
                         time.sleep(10)
                         log_withTime("Now moving OR renaming file if mainifest OR master-name...")
                         os.rename(down_path, new_name)
+                        print(new_name, ": is the new-Name of corresponding msg-id:", message.id)
                         print("Saving LAST-Stats to file last-message-id to help in Next-Run...")
                         with open('last-message-id', 'w') as f:
                             f.write(str(message.id))
