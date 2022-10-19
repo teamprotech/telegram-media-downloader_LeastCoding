@@ -50,12 +50,9 @@ def download_media(client, chat_title, skip_until=None):
     print(eco_num, dm_num, whist_num, ans_num)
     time.sleep(120)
     print("Will Continue now, With this data. Watch me!!")
-    path = "/datahome2/tele-test/live-zignd/downloaded_media/"
-    old_name = "/datahome2/tele-test/live-zignd/downloaded_media/manifest.mp4"
-    file_flag = False
     break_msg_looping = False
-    new_exists = True
     re_Do_All = False
+    dir_path = "downloaded_media"
     chats = client(GetAllChatsRequest(except_ids=[]))
     for _, chat in enumerate(chats.chats):
         if chat.title == chat_title:
@@ -65,11 +62,45 @@ def download_media(client, chat_title, skip_until=None):
             for message in client.iter_messages(chat, offset_id=skip_until):
                 if break_msg_looping:
                     break
-                elif message.media:
+                if sec_num > 3:
+                    lect_Name = "Security"
+                    lect_Num = sec_num
+                    sec_num = sec_num - 1
+                elif ir_num > 0:
+                    lect_Name = "International_Relations"
+                    lect_Num = ir_num
+                    ir_num = ir_num - 1
+                elif st_num > 0:
+                    lect_Name = "Science_Tech"
+                    lect_Num = st_num
+                    st_num = st_num - 1
+                elif bs_num > 0:
+                    lect_Name = "Basic_Science"
+                    lect_Num = bs_num
+                    bs_num = bs_num - 1
+                elif modhist_num > 0:
+                    lect_Name = "Modern_History"
+                    lect_Num = modhist_num
+                    modhist_num = modhist_num - 1
+                elif maps_num > 0:
+                    lect_Name = "Mapping"
+                    lect_Num = maps_num
+                    maps_num = maps_num - 1
+                elif geo_num > 0:
+                    lect_Name = "Geography_GS"
+                    lect_Num = geo_num
+                    geo_num = geo_num -1
+                else:
+                    print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
+                    print("[STOPPED] Downloading current media with msg-id: ", message-id)
+                    break
+                new_name = dir_path + lect_Name + "_Lecture_" + str(lect_Num) + ".mp4"
+
+                if message.media:
                     while True:
                         print(message.id, message.date, "message has media, downloading")
                         try:
-                            client.download_media(message, file='downloaded_media')
+                            down_path = client.download_media(message, file='downloaded_media')
                         except errors.FloodWaitError as e:
                             log_withTime("Failed to download THIS-Media...", message.id)
                             print(message.id, message.date, "failed to download media: flood wait error, were asked to wait for", e.seconds, " but will be waiting for", e.seconds + 120)
@@ -98,44 +129,7 @@ def download_media(client, chat_title, skip_until=None):
                         print(message.id, message.date, "media downloaded, waiting 10 seconds before the next one")
                         time.sleep(10)
                         log_withTime("Now moving OR renaming file if mainifest OR master-name...")
-                        old_manifest = "/datahome2/tele-test/live-zignd/downloaded_media/manifest.mp4"
-                        old_master = "/datahome2/tele-test/live-zignd/downloaded_media/master.mp4"
-                        if os.path.exists(old_manifest):
-                            file_flag = True
-                            old_name = old_manifest
-                        elif os.path.exists(old_master):
-                            file_flag = True
-                            old_name = old_master
-                        else:
-                            print("None of Pre-defined file exists... Should leave as it is ??")
-                            
-                        if eco_num > 0:
-                            new_name = path + "Economics_Lecture_" + str(eco_num) + ".mp4"
-                            eco_num = eco_num - 1
-                        elif dm_num > 0:
-                            new_name = path + "Disater-Management_Lecture_" + str(dm_num) + ".mp4"
-                            dm_num = dm_num - 1
-                        elif whist_num > 0:
-                            new_name = path + "World-History_Lecture_" + str(whist_num) + ".mp4"
-                            whist_num = whist_num - 1
-                        elif ans_num > 0:
-                            new_name = path + "Answer-Writing_Lecture_" + str(ans_num) + ".mp4"
-                            ans_num = ans_num - 1
-                        else:
-                            print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
-                            break_msg_looping = True
-                            new_exists = False
-                        
-                        if (file_flag and new_exists):
-                            os.rename(old_name, new_name)
-                            print(new_name, ": is the new-Name of corresponding msg-id:", message.id)
-                        elif new_exists:
-                            print(message.id, ":was supposed to be re-Named to: ", new_name)
-                            print("So STOPPING now... Check & Implement to catch FURTHER OLD-Names...")
-                            break_msg_looping = True
-                        else:
-                            print(message.id, old_name, " : was supposed to be re-Named in this Last-Session...")
-                            
+                        os.rename(down_path, new_name)
                         print("Saving LAST-Stats to file last-message-id to help in Next-Run...")
                         with open('last-message-id', 'w') as f:
                             f.write(str(message.id))
