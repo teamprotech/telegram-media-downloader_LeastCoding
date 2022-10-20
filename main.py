@@ -21,12 +21,15 @@ def log_withTime(message=None, msg_id=None):
         print("[INFO] " + timeStamp + ' : ' + message)
 
 def loop_whole_process():
+    global client2
+    print("[EXEC] Disconnecting Client First to avoid -sqLite-db-lock issues...")
+    client2.disconnect()
+    print("[EXEC] Client Disconnected... Now Speeping for 180-Seconds to cool tele-server !!!")
+    time.sleep(180)
     with open('.config/api-details') as f:
         lines = f.read().splitlines()
-        api_id = lines[0].split()[0]
-        api_hash = lines[1].split()[0]
         chat_title = lines[2]
-    client = initialize(api_id, api_hash)
+    client2.start()
     print("[EXEC] Client Connected Back...")
     file = open('last-message-id')
     lines = file.readlines()
@@ -34,7 +37,7 @@ def loop_whole_process():
     file.close()
     print("[INFO] skip_until: As per last-message-id file data SET to: ", skip_until)
     print("[EXEC] Passing controll to MAIN-download_media finally...")
-    download_media(client, chat_title, skip_until)
+    download_media(client2, chat_title, skip_until)
 
 def initialize(api_id, api_hash):
     try:
@@ -46,6 +49,8 @@ def initialize(api_id, api_hash):
     return client
 
 def download_media(client, chat_title, skip_until=None):
+    global client2
+    client2 = client
     log_withTime("START-Time Marked here...")
     print("Reading the data-stats from File-NOW...")
     with open('last-message-id') as f:
@@ -161,10 +166,6 @@ def download_media(client, chat_title, skip_until=None):
             break
     if re_Do_All:
         log_withTime("Flag found to be TRUE for re-Executing self-Fully...")
-        print("[EXEC] Disconnecting Client First to avoid -sqLite-db-lock issues...")
-        client.disconnect()
-        print("[EXEC] Client Disconnected... Now Speeping for 180-Seconds to cool tele-server !!!")
-        time.sleep(180)
         print("[EXEC] Now Calling the -loop_whole_process- part...")
         loop_whole_process()
     else:
