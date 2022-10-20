@@ -5,6 +5,14 @@ from telethon import errors
 from datetime import datetime
 import glob
 
+def clean_broken_downloads():
+    for file in glob.glob('downloaded_media/master*'):
+        print("Deleting file: ", file)
+        os.remove(file)
+    for file in glob.glob('downloaded_media/manifest*'):
+        print("Deleting file: ", file)
+        os.remove(file)
+
 def log_withTime(message=None, msg_id=None):
     timeStamp = datetime.now().strftime("%d-%b %H:%M:%S")
     if msg_id:
@@ -117,12 +125,7 @@ def download_media(client, chat_title, skip_until=None):
                             re_Do_All = True
                             break_msg_looping = True
                             print("[EXEC] Clearing orphaned-downloads...")
-                            for file in glob.glob('downloaded_media/master*'):
-                                print("Deleting file: ", file)
-                                os.remove(file)
-                            for file in glob.glob('downloaded_media/manifest*'):
-                                print("Deleting file: ", file)
-                                os.remove(file)
+                            clean_broken_downloads()
                             print("Done with Clearing, Will re-Execute NOW....Watch...")
                             break
                         except Exception as e:
