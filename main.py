@@ -53,6 +53,9 @@ def loop_whole_process():
     client2.disconnect()
     print("[EXEC] Client Disconnected... Now Speeping for 180-Seconds to cool tele-server !!!")
     time.sleep(180)
+    print("[EXEC] after-sleep, Now Clearing orphaned-downloads...")
+    clean_broken_downloads()
+    log_withTime("Done with Clearing, Will re-Execute NOW....Watch...")
     with open('.config/api-details') as f:
         lines = f.read().splitlines()
         chat_title = lines[2]
@@ -159,9 +162,6 @@ def download_media(client, chat_title, skip_until=None):
                             print("[EXEC] Setting Flags to re-Execute")
                             re_Do_All = True
                             break_msg_looping = True
-                            print("[EXEC] Clearing orphaned-downloads...")
-                            clean_broken_downloads()
-                            print("Done with Clearing, Will re-Execute NOW....Watch...")
                             break
                         except Exception as e:
                             print(message.id, message.date, "failed to download media")
