@@ -4,6 +4,7 @@ from telethon.tl.functions.messages import GetAllChatsRequest
 from telethon import errors
 from datetime import datetime
 import glob
+import atexit
 
 # Printing download progress
 def callback(current, total):
@@ -68,6 +69,18 @@ def loop_whole_process():
     print("[INFO] skip_until: As per last-message-id file data SET to: ", skip_until)
     print("[EXEC] Passing controll to MAIN-download_media finally...")
     download_media(client2, chat_title, skip_until)
+
+#Define a wrapper_fun TO wrap some Logging-Statements & the 'loop_whole_process'
+def wrap_loop_whole():
+    print("[EXIT] triggered at some point. CHECK above lines for hint of triggering place....")
+    print("[EXIT] [START of Fresh] Re-Initializing everything from -loop_whole_process- afterwards...")
+    loop_whole_process()
+
+#Registering 'loop_whole_process' through 'atexit-Module' to run further 4-times
+atexit.register(wrap_loop_whole)
+atexit.register(wrap_loop_whole)
+atexit.register(wrap_loop_whole)
+atexit.register(wrap_loop_whole)
 
 def initialize(api_id, api_hash):
     try:
