@@ -5,6 +5,33 @@ from telethon import errors
 from datetime import datetime
 import glob
 
+# Printing download progress
+def callback(current, total):
+    global count_called; global bytes_old; global no_change; global no_change2; global total_called
+    total_called += 1
+    if count_called > 700:
+        print('Downloaded', current, 'out of', total, 'bytes: {:.2%}'.format(current / total))
+        print("Calling_Count is = ", count_called)
+        count_called = 0
+    else:
+        count_called += 1
+    if bytes_old < current:
+        bytes_old = current
+        no_change = 0
+        no_change2 = 0
+    else:
+        no_change += 1
+        no_change2 += 1
+    if no_change > 300:
+        log_withTime("[CALLBACK] [BREAK] Download HANGED since last 300-Call !! Let-break & re-Start...")
+        no_change = 0
+        log_withTime("[CALLBACK] [BREAK] [EXIT] Calling Exit & re-Execute through atexit-Modlue...")
+        exit()
+    if no_change2 > 5:
+        no_change2 = 0
+        log_withTime("Download-Progress looks stucked in last 5-calls !!!")
+        print("Current Value of no_change is: "+ str(no_change) + " & of no_change2 is: " + str(no_change2))
+
 def clean_broken_downloads():
     for file in glob.glob('downloaded_media/master*'):
         print("Deleting file: ", file)
@@ -115,8 +142,11 @@ def download_media(client, chat_title, skip_until=None):
                 if message.media:
                     while True:
                         print(message.id, message.date, "message has media, downloading")
+                        global count_called; global bytes_old; global no_change; global no_change2; global total_called
+                        log_withTime("Clearing flags of COUNTS to be used inside-CALLBACK function!!!!")
+                        count_called = 0; bytes_old = 0; no_change = 0; no_change2 = 0; total_called = 0
                         try:
-                            down_path = client.download_media(message, file='downloaded_media')
+                            down_path = client.download_media(message, file='downloaded_media', progress_callback=callback)
                         except errors.FloodWaitError as e:
                             log_withTime("Failed to download THIS-Media...", message.id)
                             print(message.id, message.date, "failed to download media: flood wait error, were asked to wait for", e.seconds, " but will be waiting for", e.seconds + 120)
@@ -137,6 +167,8 @@ def download_media(client, chat_title, skip_until=None):
                             print(message.id, message.date, "failed to download media")
                             log_withTime("Some Un-Handled Exception occured", message.id)
                             raise e
+                        media_size = round(message.file.size/1024/1024)
+                        print("[COUNTS] THIS media had byte-Size:= ", media_size, "And total_called was:=", total_called)
                         print(message.id, message.date, "media downloaded, waiting 10 seconds before the next one")
                         time.sleep(10)
                         log_withTime("Now moving OR renaming file if mainifest OR master-name...")
