@@ -113,8 +113,10 @@ def download_media(client, chat_title, skip_until=None):
     re_Do_All = False
     dir_path = "downloaded_media/"
     chats = client(GetAllChatsRequest(except_ids=[]))
+    chat_found = False
     for _, chat in enumerate(chats.chats):
         if chat.title == chat_title:
+            chat_found = True
             print("found chat with title", chat_title)
             print('attemping to iterate over messages to download media')
             skip_until = skip_until and int(skip_until)
@@ -208,6 +210,8 @@ def download_media(client, chat_title, skip_until=None):
                 else:
                     print(message.id, message.date, "message doesn't have media")
             break
+    if not chat_found:
+        log_withTime("Given Chat is NOT Found !! Pls cross check it...")
     if re_Do_All:
         log_withTime("Flag found to be TRUE for re-Executing self-Fully...")
         print("[EXEC] Now Calling the -loop_whole_process- part...")
