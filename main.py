@@ -121,41 +121,40 @@ def download_media(client, chat_title, skip_until=None):
             for message in client.iter_messages(chat, offset_id=skip_until):
                 if break_msg_looping:
                     break
-                if sec_num > 3:
-                    lect_Name = "Security"
-                    lect_Num = sec_num
-                    sec_num = sec_num - 1
-                elif ir_num > 0:
-                    lect_Name = "International_Relations"
-                    lect_Num = ir_num
-                    ir_num = ir_num - 1
-                elif st_num > 0:
-                    lect_Name = "Science_Tech"
-                    lect_Num = st_num
-                    st_num = st_num - 1
-                elif bs_num > 0:
-                    lect_Name = "Basic_Science"
-                    lect_Num = bs_num
-                    bs_num = bs_num - 1
-                elif modhist_num > 0:
-                    lect_Name = "Modern_History"
-                    lect_Num = modhist_num
-                    modhist_num = modhist_num - 1
-                elif maps_num > 0:
-                    lect_Name = "Mapping"
-                    lect_Num = maps_num
-                    maps_num = maps_num - 1
-                elif geo_num > 0:
-                    lect_Name = "Geography_GS"
-                    lect_Num = geo_num
-                    geo_num = geo_num -1
-                else:
-                    print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
-                    print("[STOPPED] at current media with msg-id: ", message.id)
-                    break
-                new_name = dir_path + lect_Name + "_Lecture_" + str(lect_Num) + ".mp4"
-
                 if message.media:
+                    if sec_num > 3:
+                        lect_Name = "Security"
+                        lect_Num = sec_num
+                        sec_num = sec_num - 1
+                    elif ir_num > 0:
+                        lect_Name = "International_Relations"
+                        lect_Num = ir_num
+                        ir_num = ir_num - 1
+                    elif st_num > 0:
+                        lect_Name = "Science_Tech"
+                        lect_Num = st_num
+                        st_num = st_num - 1
+                    elif bs_num > 0:
+                        lect_Name = "Basic_Science"
+                        lect_Num = bs_num
+                        bs_num = bs_num - 1
+                    elif modhist_num > 0:
+                        lect_Name = "Modern_History"
+                        lect_Num = modhist_num
+                        modhist_num = modhist_num - 1
+                    elif maps_num > 0:
+                        lect_Name = "Mapping"
+                        lect_Num = maps_num
+                        maps_num = maps_num - 1
+                    elif geo_num > 0:
+                        lect_Name = "Geography_GS"
+                        lect_Num = geo_num
+                        geo_num = geo_num -1
+                    else:
+                        print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
+                        print("[STOPPED] at current media with msg-id: ", message.id)
+                        break
+                    new_name = dir_path + lect_Name + "_Lecture_" + str(lect_Num) + ".mp4"
                     while True:
                         print(message.id, message.date, "message has media, downloading")
                         global count_called; global bytes_old; global no_change; global no_change2; global total_called
