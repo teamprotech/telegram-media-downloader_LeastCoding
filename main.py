@@ -207,32 +207,51 @@ def download_media(client, chat_title, skip_until=None):
         log_withTime("END-Time Marked here...")
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1] == "--help":
-        print("Example: python main.py --api-id 12345 --api-hash 1ab1ab1ab1ab1ab --chat-title 'Bunker Reborn' --skip-until 123456")
-        print("  --api-id and --api-hash you can generate your at https://my.telegram.org")
-        print("  --skip-until is optional, should be a message.id, the code iterates over the messages from the newest to the oldest")
-        exit()
+    if len(sys.argv) == 2 and sys.argv[1] == "--fileconfig":
+        log_withTime("[Starting with File_Based configs stored locally...")
+        print("Fetching parameters from config-file...")
+        with open('.config/api-details') as f:
+            lines = f.read().splitlines()
+            api_id = int(lines[0].split()[0])
+            api_hash = lines[1].split()[0]
+            chat_title = lines[2]
+        file = open('last-message-id')
+        lines = file.readlines()
+        skip_until = lines[0].split()[0]
+        file.close()
+        print("Clearing any broken downloads...")
+        clean_broken_downloads()
+        client = initialize(api_id, api_hash)
+        print("[INFO] skip_until: As per last-message-id file data SET to: ", skip_until)
+        print("Giving control to main download_media-Fun...")
 
-    if len(sys.argv) < 7:
-        print("Missing arguments, check --help")
-        exit(1)
+    else:
+        if len(sys.argv) == 2 and sys.argv[1] == "--help":
+            print("Example: python main.py --api-id 12345 --api-hash 1ab1ab1ab1ab1ab --chat-title 'Bunker Reborn' --skip-until 123456")
+            print("  --api-id and --api-hash you can generate your at https://my.telegram.org")
+            print("  --skip-until is optional, should be a message.id, the code iterates over the messages from the newest to the oldest")
+            exit()
 
-    if not (sys.argv[1] == "--api-id" and sys.argv[2] and sys.argv[3] == "--api-hash" and sys.argv[4]):
-        print("Missing arguments --api-id and --api-hash (order can't differ from example in --help)")
-        exit(1)
+        if len(sys.argv) < 7:
+            print("Missing arguments, check --help")
+            exit(1)
 
-    api_id = sys.argv[2]
-    api_hash = sys.argv[4]
-    client = initialize(api_id, api_hash)
+        if not (sys.argv[1] == "--api-id" and sys.argv[2] and sys.argv[3] == "--api-hash" and sys.argv[4]):
+            print("Missing arguments --api-id and --api-hash (order can't differ from example in --help)")
+            exit(1)
 
-    if not (sys.argv[5] == "--chat-title" and sys.argv[6]):
-        print("Missing argument --chat-title (order can't differ from example in --help)")
-        exit(1)
+        api_id = sys.argv[2]
+        api_hash = sys.argv[4]
+        client = initialize(api_id, api_hash)
+
+        if not (sys.argv[5] == "--chat-title" and sys.argv[6]):
+            print("Missing argument --chat-title (order can't differ from example in --help)")
+            exit(1)
     
-    chat_title = sys.argv[6]
+        chat_title = sys.argv[6]
 
-    skip_until = None
-    if len(sys.argv) == 9 and sys.argv[7] == "--skip-until" and sys.argv[8]:
-        skip_until = sys.argv[8]
+        skip_until = None
+        if len(sys.argv) == 9 and sys.argv[7] == "--skip-until" and sys.argv[8]:
+            skip_until = sys.argv[8]
            
     download_media(client, chat_title, skip_until)
