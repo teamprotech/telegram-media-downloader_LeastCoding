@@ -48,8 +48,8 @@ while True:
 
 	#print("[PARENT] [SLEEP] Waiting this time for Seconds =: ", n + 20)
 	time.sleep(180 + n)
-	#print("[PARENT] [WAKE] Reading data_log for changes...")
-	with open('data_log') as file:
+	#print("[PARENT] [WAKE] Reading .config/data_log for changes...")
+	with open('.config/data_log') as file:
 		lines = file.read().splitlines()
 		new_data = int(lines[0].split()[0])
 	if old_data == new_data:

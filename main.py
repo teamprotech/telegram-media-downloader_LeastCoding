@@ -7,7 +7,7 @@ import glob
 
 # Printing download progress
 def callback(current, total):
-    with open("data_log", "w") as file:
+    with open(".config/data_log", "w") as file:
         file.write(str(current))
     global count_called; global bytes_old; global no_change; global no_change2; global total_called
     total_called += 1
@@ -58,16 +58,16 @@ def loop_whole_process():
     print("[EXEC] after-sleep, Now Clearing orphaned-downloads...")
     clean_broken_downloads()
     log_withTime("Done with Clearing, Will re-Execute NOW....Watch...")
-    with open('.config/api-details') as f:
+    with open('.config/api_details') as f:
         lines = f.read().splitlines()
         chat_title = lines[2]
     client2.start()
     print("[EXEC] Client Connected Back...")
-    file = open('last-message-id')
+    file = open('.config/last_parameters')
     lines = file.readlines()
     skip_until = lines[0].split()[0]
     file.close()
-    print("[INFO] skip_until: As per last-message-id file data SET to: ", skip_until)
+    print("[INFO] skip_until: As per .config/last_parameters file data SET to: ", skip_until)
     print("[EXEC] Passing controll to MAIN-download_media finally...")
     download_media(client2, chat_title, skip_until)
 
@@ -85,7 +85,7 @@ def download_media(client, chat_title, skip_until=None):
     client2 = client
     log_withTime("START-Time Marked here...")
     print("Reading the data-stats from File-NOW...")
-    with open('last-message-id') as f:
+    with open('.config/last_parameters') as f:
         lines = f.read().splitlines()
         sec_num = int(lines[1].split()[0])
         ir_num = int(lines[2].split()[0])
@@ -177,8 +177,8 @@ def download_media(client, chat_title, skip_until=None):
                         log_withTime("Now moving OR renaming file if mainifest OR master-name...")
                         os.rename(down_path, new_name)
                         print(new_name, ": is the new-Name of corresponding msg-id:", message.id)
-                        print("Saving LAST-Stats to file last-message-id to help in Next-Run...")
-                        with open('last-message-id', 'w') as f:
+                        print("Saving LAST-Stats to file .config/last_parameters to help in Next-Run...")
+                        with open('.config/last_parameters', 'w') as f:
                             f.write(str(message.id))
                             f.write(" : Message-id of Last read msg-Chat \n")
                             f.write(str(sec_num))
@@ -212,19 +212,19 @@ if __name__ == "__main__":
     if len(sys.argv) == 2 and sys.argv[1] == "--fileconfig":
         log_withTime("[Starting with File_Based configs stored locally...")
         print("Fetching parameters from config-file...")
-        with open('.config/api-details') as f:
+        with open('.config/api_details') as f:
             lines = f.read().splitlines()
             api_id = int(lines[0].split()[0])
             api_hash = lines[1].split()[0]
             chat_title = lines[2]
-        file = open('last-message-id')
+        file = open('.config/last_parameters')
         lines = file.readlines()
         skip_until = lines[0].split()[0]
         file.close()
         print("Clearing any broken downloads...")
         clean_broken_downloads()
         client = initialize(api_id, api_hash)
-        print("[INFO] skip_until: As per last-message-id file data SET to: ", skip_until)
+        print("[INFO] skip_until: As per .config/last_parameters file data SET to: ", skip_until)
         print("Giving control to main download_media-Fun...")
 
     else:
