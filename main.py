@@ -7,6 +7,8 @@ import glob
 
 # Printing download progress
 def callback(current, total):
+    with open("data_log", "w") as file:
+        file.write(str(current))
     global count_called; global bytes_old; global no_change; global no_change2; global total_called
     total_called += 1
     if count_called > 700:
