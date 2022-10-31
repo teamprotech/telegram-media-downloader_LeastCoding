@@ -2,8 +2,29 @@ import sys, os, time
 from telethon.sync import TelegramClient
 from telethon.tl.functions.messages import GetAllChatsRequest
 from telethon import errors
-from datetime import datetime
+from datetime import datetime, timedelta
 import glob
+
+# Calculate and log prev_speed, remaining_time, and re-Start if NOT enough for current mb_size
+def enough_time_for(mb_size):
+    global start_time, prev_remaining_time, prev_mb_size
+    allowed_time = timedelta(hours = 2, minutes = 0, seconds = 0)
+    remaining_time = (allowed_time - (datetime.now() - start_time)).total_seconds()
+    try:
+        prev_time_taken = prev_remaining_time - remaining_time
+        prev_speed = prev_mb_size / prev_time_taken
+        print("[LOW-TIME] Prev_Media had mb_size:", prev_mb_size, "took time in Seconds:", prev_time_taken, "at Speed mb/sec of:", prev_speed)
+        required_time = mb_size / (prev_speed - 0.05)
+    except:
+        required_time = mb_size / 0.65
+    prev_mb_size = mb_size
+    prev_remaining_time = remaining_time
+    if remaining_time > required_time:
+        print("[LOW-TIME] Remaining seconds:", remaining_time, "are enough for mb_size of:", mb_size)
+        return True
+    else:
+        print("[LOW-TIME] Remaining Seconds:", remaining_time, "NOT enough for mb_size of:", mb_size)
+        return False
 
 # Printing download progress
 def callback(current, total):
@@ -81,8 +102,11 @@ def initialize(api_id, api_hash):
     return client
 
 def download_media(client, chat_title, skip_until=None):
-    global client2
+    global client2, start_time, prev_remaining_time, prev_mb_size
+    prev_remaining_time = None
+    prev_mb_size = None
     client2 = client
+    start_time = datetime.now()
     log_withTime("START-Time Marked here...")
     print("Reading the data-stats from File-NOW...")
     with open('.config/last_parameters') as f:
@@ -141,6 +165,12 @@ def download_media(client, chat_title, skip_until=None):
                         print("[STOPPED] at current media with msg-id: ", message.id)
                         break
                     new_name = dir_path + lect_Name + "_Lecture_" + str(lect_Num) + ".mp4"
+                    mb_size = round(message.file.size/1024/1024)
+                    if not enough_time_for(mb_size):
+                        print("[LOW-TIME] [EXEC] To AVOID that _FileReferenceExpiredError_ re-Starting the execution...")
+                        print("[EXEC] [LOW-TIME] Setting Flags to re-Execute")
+                        re_Do_All = True
+                        break
                     while True:
                         print(message.id, message.date, "message has media, downloading")
                         global count_called; global bytes_old; global no_change; global no_change2; global total_called
@@ -165,8 +195,7 @@ def download_media(client, chat_title, skip_until=None):
                             print(message.id, message.date, "failed to download media")
                             log_withTime("Some Un-Handled Exception occured", message.id)
                             raise e
-                        media_size = round(message.file.size/1024/1024)
-                        print("[COUNTS] THIS media had byte-Size:= ", media_size, "And total_called was:=", total_called)
+                        print("[COUNTS] THIS media had byte-Size:= ", mb_size, "And total_called was:=", total_called)
                         print(message.id, message.date, "media downloaded, waiting 10 seconds before the next one")
                         time.sleep(10)
                         log_withTime("Now moving OR renaming file if mainifest OR master-name...")
