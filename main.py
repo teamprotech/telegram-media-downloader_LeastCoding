@@ -87,15 +87,14 @@ def download_media(client, chat_title, skip_until=None):
     print("Reading the data-stats from File-NOW...")
     with open('.config/last_parameters') as f:
         lines = f.read().splitlines()
-        sec_num = int(lines[1].split()[0])
-        ir_num = int(lines[2].split()[0])
-        st_num = int(lines[3].split()[0])
-        bs_num = int(lines[4].split()[0])
-        modhist_num = int(lines[5].split()[0])
-        maps_num = int(lines[6].split()[0])
-        geo_num = int(lines[7].split()[0])
+        art_num = int(lines[1].split()[0])
+        amhienv_num = int(lines[2].split()[0])
+        env_num = int(lines[3].split()[0])
+        ethics_num = int(lines[4].split()[0])
+        recam_num = int(lines[5].split()[0])
+        polity_num = int(lines[6].split()[0])
     log_withTime("Below are the Collected-DATA. Cross check with file if NOT-okay break me in 60-seconds!!!")
-    print(sec_num, ir_num, st_num, bs_num, modhist_num, maps_num, geo_num)
+    print(art_num, amhienv_num, env_num, ethics_num, recam_num, polity_num)
     time.sleep(60)
     print("Will Continue now, With this data. Watch me!!")
     break_msg_looping = False
@@ -113,34 +112,30 @@ def download_media(client, chat_title, skip_until=None):
                 if break_msg_looping:
                     break
                 if message.media:
-                    if sec_num > 3:
-                        lect_Name = "Security"
-                        lect_Num = sec_num
-                        sec_num = sec_num - 1
-                    elif ir_num > 0:
-                        lect_Name = "International_Relations"
-                        lect_Num = ir_num
-                        ir_num = ir_num - 1
-                    elif st_num > 0:
-                        lect_Name = "Science_Tech"
-                        lect_Num = st_num
-                        st_num = st_num - 1
-                    elif bs_num > 0:
-                        lect_Name = "Basic_Science"
-                        lect_Num = bs_num
-                        bs_num = bs_num - 1
-                    elif modhist_num > 0:
-                        lect_Name = "Modern_History"
-                        lect_Num = modhist_num
-                        modhist_num = modhist_num - 1
-                    elif maps_num > 0:
-                        lect_Name = "Mapping"
-                        lect_Num = maps_num
-                        maps_num = maps_num - 1
-                    elif geo_num > 0:
-                        lect_Name = "Geography_GS"
-                        lect_Num = geo_num
-                        geo_num = geo_num -1
+                    if art_num > 0:
+                        lect_Name = "Art_And_Culture"
+                        lect_Num = art_num
+                        art_num = art_num - 1
+                    elif amhienv_num > 0:
+                        lect_Name = "Ancient_And_Medival_History"
+                        lect_Num = amhienv_num
+                        amhienv_num = amhienv_num - 1
+                    elif env_num > 0:
+                        lect_Name = "Environment_Ecology"
+                        lect_Num = env_num
+                        env_num = env_num - 1
+                    elif ethics_num > 0:
+                        lect_Name = "Ethics"
+                        lect_Num = ethics_num
+                        ethics_num = ethics_num - 1
+                    elif recam_num > 0:
+                        lect_Name = "Recorded_Ancient_And_Medival"
+                        lect_Num = recam_num
+                        recam_num = recam_num - 1
+                    elif polity_num > 0:
+                        lect_Name = "Polity"
+                        lect_Num = polity_num
+                        polity_num = polity_num - 1
                     else:
                         print("No Pre-Defined naming-Counter remaining-now... STOPPING here and Implement for MORE...")
                         print("[STOPPED] at current media with msg-id: ", message.id)
@@ -181,20 +176,18 @@ def download_media(client, chat_title, skip_until=None):
                         with open('.config/last_parameters', 'w') as f:
                             f.write(str(message.id))
                             f.write(" : Message-id of Last read msg-Chat \n")
-                            f.write(str(sec_num))
-                            f.write(" : Last-sec_num \n")
-                            f.write(str(ir_num))
-                            f.write(" : Last-ir_num \n")
-                            f.write(str(st_num))
-                            f.write(" : Last-st_num \n")
-                            f.write(str(bs_num))
-                            f.write(" : Last-bs_num \n")
-                            f.write(str(modhist_num))
-                            f.write(" : Last-modhist_num \n")
-                            f.write(str(maps_num))
-                            f.write(" : Last-maps_num \n")
-                            f.write(str(geo_num))
-                            f.write(" : Last-geo_num \n")
+                            f.write(str(art_num))
+                            f.write(" : Last-art_num \n")
+                            f.write(str(amhienv_num))
+                            f.write(" : Last-amhienv_num \n")
+                            f.write(str(env_num))
+                            f.write(" : Last-env_num \n")
+                            f.write(str(ethics_num))
+                            f.write(" : Last-ethics_num \n")
+                            f.write(str(recam_num))
+                            f.write(" : Last-recam_num \n")
+                            f.write(str(polity_num))
+                            f.write(" : Last-polity_num \n")
                         break
                 else:
                     print(message.id, message.date, "message doesn't have media")
